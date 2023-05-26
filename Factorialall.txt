@@ -1,0 +1,116 @@
+import java.math.BigInteger;
+
+// Creating an Interface
+public interface Factorial
+	extends java.rmi.Remote {
+
+	// Declaring the method
+	public BigInteger fact(int num)
+		throws java.rmi.RemoteException;
+}
+
+----------------------------------------------------------------------------------
+
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.math.BigInteger;
+
+// Extends and Implement the class
+// and interface respectively
+public class FactorialImpl extends java.rmi.server.UnicastRemoteObject implements Factorial {
+
+	// Constructor Declaration
+	public FactorialImpl() throws java.rmi.RemoteException
+	{
+		super();
+	}
+
+	// Calculation for the problem statement
+	// Implementing the method fact()
+	// to find factorial of a number
+	public BigInteger fact(int num) throws java.rmi.RemoteException
+	{
+		BigInteger factorial = BigInteger.ONE;
+
+		for (int i = 1; i <= num; ++i) 
+		{
+			factorial = factorial.multiply(BigInteger.valueOf(i));
+		}
+		return factorial;
+	}
+}
+
+
+------------------------------------------------------------------------------------------------------------
+
+import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.RemoteException;
+import java.rmi.Naming;
+
+public class FactorialServer {
+
+	// Implement the constructor of the class
+	public FactorialServer()
+	{
+		try {
+			// Create a object reference for the interface
+			Factorial c = new FactorialImpl();
+
+			// Bind the localhost with the service
+			Naming.rebind("rmi://localhost/FactorialService", c);
+		}
+		catch (Exception e) {
+			// If any error occur
+			System.out.println("ERR: " + e);
+		}
+	}
+
+	public static void main(String[] args)
+	{
+		// Create an object
+		new FactorialServer();
+	}
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+
+import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.RemoteException;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+public class FactorialClient {
+	public static void main(String[] args)
+	{
+
+		try {
+			// Create an remote object with the same name
+			// Cast the lookup result to the interface
+			Factorial c = (Factorial)Naming.lookup("rmi://localhost/FactorialService");
+
+			// Call the method for the results
+			System.out.println(c.fact(30));
+		}
+
+		// If any error occur
+		catch (MalformedURLException murle) {
+			System.out.println("\nMalformedURLException: " + murle);
+		}
+
+		catch (RemoteException re) {
+			System.out.println("\nRemoteException: " + re);
+		}
+
+		catch (NotBoundException nbe) {
+			System.out.println("\nNotBoundException: " + nbe);
+		}
+
+		catch (java.lang.ArithmeticException ae) {
+			System.out.println("\nArithmeticException: " + ae);
+		}
+	}
+}
